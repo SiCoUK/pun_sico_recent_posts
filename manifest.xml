@@ -30,7 +30,7 @@
 <extension engine="1.0">
     <id>sico_recent_posts</id>
     <title>SiCo Recent Posts</title>
-    <version>2.0.0</version>
+    <version>2.0.2</version>
     <description>Shows a users most recent posts on their profile.</description>
     <author>Simon Corless &amp; Garciat</author>
     <minversion>1.4</minversion>
@@ -52,16 +52,17 @@
         <hook id="pf_view_details_pre_user_sig_info, pf_change_details_about_pre_user_sig_info" priority="1">
         <![CDATA[
             //Language files!
-            if (file_exists($ext_info['path'].'/lang/'.$forum_user['language'].'/'.$ext_info['id'].'.php'))
-                include $ext_info['path'].'/lang/'.$forum_user['language'].'/'.$ext_info['id'].'.php';
-            else
-                include $ext_info['path'].'/lang/English/'.$ext_info['id'].'.php';
-
+            if (file_exists($ext_info['path'] . '/lang/'.$forum_user['language'] . '/' . $ext_info['id'].'.php')) {
+                include($ext_info['path'] . '/lang/'.$forum_user['language'] . '/' . $ext_info['id'].'.php');
+            } else {
+                include($ext_info['path'] . '/lang/English/' . $ext_info['id'] . '.php');
+            }
+            
             //Lets prepare our query
             $query = array(
-            'SELECT'	=> 'p.id AS pid, t.id AS tid, t.subject, t.poster, t.first_post_id, p.posted',
-            'FROM'		=> 'posts AS p',
-            'JOINS'		=> array(
+            'SELECT' => 'p.id AS pid, t.id AS tid, t.subject, t.poster, t.first_post_id, p.posted',
+            'FROM' => 'posts AS p',
+            'JOINS' => array(
                 array(
                     'LEFT JOIN' => 'topics AS t',
                     'ON' => 't.id = p.topic_id'
@@ -87,17 +88,18 @@
             $user_posts = array();
 
             //Prepare the HTML for output
-            while($cur_post = $forum_db->fetch_assoc($user_posts_result))
-            $user_posts[] = '<li'.(empty($user_posts) ? ' class="first-item"' : '') . '>' . (($cur_post['pid'] != $cur_post['first_post_id']) ? $lang_latest_posts['Reply'] : $lang_latest_posts['New']) . ' <a href="'.forum_link($forum_url['post'], $cur_post['pid']).'">' . forum_htmlencode($cur_post['subject']) . '</a> ' . format_time($cur_post['posted']) . '</li>';
-
-            //Make sure we actually got posts before trying to show them
+            while($cur_post = $forum_db->fetch_assoc($user_posts_result)) {
+                $user_posts[] = '<li'.(empty($user_posts) ? ' class="first-item"' : '') . '>' . (($cur_post['pid'] != $cur_post['first_post_id']) ? $lang_latest_posts['Reply'] : $lang_latest_posts['New']) . ' <a href="'.forum_link($forum_url['post'], $cur_post['pid']).'">' . forum_htmlencode($cur_post['subject']) . '</a> posted ' . format_time($cur_post['posted']) . '</li>';
+            }
+            
+            //Make sure we actually have posts before trying to show them
             if(!empty($user_posts)) {
             ?>
                 <div class="ct-set data-set set<?php echo ++$forum_page['item_count'] ?>">
                     <div class="ct-box data-box">
-                        <h3 class="ct-legend hn"><span><?php echo $lang_latest_posts['Latest posts'] ?></span></h3>
+                        <h4 class="ct-legend hn"><span><?php echo $lang_latest_posts['Latest posts'] ?></span></h4>
                         <ul class="data-box">
-                            <?php echo implode("\n\t\t\t\t\t\t", $user_posts) ?>
+                            <?php echo implode(PHP_EOL, $user_posts) ?>
                         </ul>
                     </div>
                 </div>
